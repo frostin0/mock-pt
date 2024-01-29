@@ -77,107 +77,53 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
             `, mySprite, -100, 0)
     }
 })
-function spawnenemy () {
-    enemy_pictures = [sprites.create(img`
-        ........................
-        ........................
-        ........................
-        ........................
-        ..........ffff..........
-        ........ff1111ff........
-        .......fb111111bf.......
-        .......f11111111f.......
-        ......fd11111111df......
-        ......fd11111111df......
-        ......fddd1111dddf......
-        ......fbdbfddfbdbf......
-        ......fcdcf11fcdcf......
-        .......fb111111bf.......
-        ......fffcdb1bdffff.....
-        ....fc111cbfbfc111cf....
-        ....f1b1b1ffff1b1b1f....
-        ....fbfbffffffbfbfbf....
-        .........ffffff.........
-        ...........fff..........
-        ........................
-        ........................
-        ........................
-        ........................
-        `, SpriteKind.Enemy), sprites.create(img`
-        . . . . . . . . . c c c c c . . 
-        . . . . . . c c c 5 5 5 5 c c . 
-        . . . . c c 5 5 5 5 5 5 5 5 c . 
-        . . . . c b b b b b b 5 5 5 c . 
-        . . . c 1 1 1 b b 1 b b c c . . 
-        . . . c 1 1 1 1 b 1 1 1 c . c c 
-        . . . c d 1 1 1 b 1 1 1 c b 5 c 
-        . . c c d 1 c 1 b 1 1 1 b b 5 c 
-        c c c d d 1 1 1 b 1 b 1 5 5 5 c 
-        f d d d 1 1 1 1 1 1 b 1 b b c c 
-        . f f 1 1 1 1 1 1 b b 1 f . . . 
-        . . . f 1 1 1 1 1 b b b f . . . 
-        . . . . f f 1 1 b b 5 5 f . . . 
-        . . . . . . f 5 5 5 5 5 f . . . 
-        . . . . . . . f f f f f f . . . 
-        . . . . . . . . . . . . . . . . 
-        `, SpriteKind.Enemy), sprites.create(img`
-        . f f f . . . . . . . . f f f . 
-        f f c . . . . . . . f c b b c . 
-        f c c . . . . . . f c b b c . . 
-        c f . . . . . . . f b c c c . . 
-        c f f . . . . . f f b b c c . . 
-        f f f c c . c c f b c b b c . . 
-        f f f c c c c c f b c c b c . . 
-        . f c 3 c c 3 b c b c c c . . . 
-        . c b 3 b c 3 b b c c c c . . . 
-        c c b b b b b b b b c c . . . . 
-        c b 1 b b b 1 b b b b f c . . . 
-        f b b b b b b b b b b f c c . . 
-        f b c b b b c b b b b f . . . . 
-        . f 1 f f f 1 b b b c f . . . . 
-        . . f b b b b b b c f . . . . . 
-        . . . f f f f f f f . . . . . . 
-        `, SpriteKind.Enemy)]
-    for (let index = 0; index < 1; index++) {
-        enemies = enemy_pictures._pickRandom()
+function pointsystem (num: number) {
+    points = sprites.create(img`
+        . . b b b b . . 
+        . b 5 5 5 5 b . 
+        b 5 d 3 3 d 5 b 
+        b 5 3 5 5 1 5 b 
+        c 5 3 5 5 1 d c 
+        c d d 1 1 d d c 
+        . f d d d d f . 
+        . . f f f f . . 
+        `, SpriteKind.Food)
+    if (points.overlapsWith(mySprite)) {
+        sprites.destroy(points, effects.starField, 500)
+    }
+    tiles.placeOnRandomTile(points, sprites.dungeon.floorLight2)
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite, effects.spray, 500)
+    info.changeScoreBy(1)
+})
+function spawnenemy (num: number) {
+    for (let index = 0; index < num; index++) {
+        enemies = sprites.create(enemy_pictures._pickRandom(), SpriteKind.Enemy)
+        if (enemies.overlapsWith(mySprite)) {
+            tiles.placeOnRandomTile(enemies, sprites.dungeon.floorLight2)
+        }
         tiles.placeOnRandomTile(enemies, sprites.dungeon.floorLight2)
         enemies.follow(mySprite, 20)
     }
 }
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprites.destroy(otherSprite, effects.spray, 500)
-    info.changeScoreBy(1)
+    sprites.destroy(sprite)
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     sprites.destroy(otherSprite, effects.spray, 500)
     info.changeLifeBy(-1)
 })
 let enemies: Sprite = null
-let enemy_pictures: Sprite[] = []
+let points: Sprite = null
 let projectile: Sprite = null
+let enemy_pictures: Image[] = []
 let mySprite: Sprite = null
 info.setLife(5)
 tiles.placeOnTile(mySprite, tiles.getTileLocation(randint(1, 20), randint(1, 30)))
 tiles.placeOnRandomTile(mySprite, sprites.dungeon.floorLight2)
 mySprite = sprites.create(assets.image`tank 4`, SpriteKind.Player)
-let spawnlocation = sprites.create(img`
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    `, SpriteKind.Player)
 controller.moveSprite(mySprite)
 scene.setBackgroundImage(img`
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
@@ -302,6 +248,41 @@ scene.setBackgroundImage(img`
     dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     `)
 tiles.setCurrentTilemap(tilemap`level1`)
+enemy_pictures = [img`
+    . . . . . . . . . c c c c c . . 
+    . . . . . . c c c 5 5 5 5 c c . 
+    . . . . c c 5 5 5 5 5 5 5 5 c . 
+    . . . . c b b b b b b 5 5 5 c . 
+    . . . c 1 1 1 b b 1 b b c c . . 
+    . . . c 1 1 1 1 b 1 1 1 c . c c 
+    . . . c d 1 1 1 b 1 1 1 c b 5 c 
+    . . c c d 1 c 1 b 1 1 1 b b 5 c 
+    c c c d d 1 1 1 b 1 b 1 5 5 5 c 
+    f d d d 1 1 1 1 1 1 b 1 b b c c 
+    . f f 1 1 1 1 1 1 b b 1 f . . . 
+    . . . f 1 1 1 1 1 b b b f . . . 
+    . . . . f f 1 1 b b 5 5 f . . . 
+    . . . . . . f 5 5 5 5 5 f . . . 
+    . . . . . . . f f f f f f . . . 
+    . . . . . . . . . . . . . . . . 
+    `, img`
+    . f f f . . . . . . . . f f f . 
+    f f c . . . . . . . f c b b c . 
+    f c c . . . . . . f c b b c . . 
+    c f . . . . . . . f b c c c . . 
+    c f f . . . . . f f b b c c . . 
+    f f f c c . c c f b c b b c . . 
+    f f f c c c c c f b c c b c . . 
+    . f c 3 c c 3 b c b c c c . . . 
+    . c b 3 b c 3 b b c c c c . . . 
+    c c b b b b b b b b c c . . . . 
+    c b 1 b b b 1 b b b b f c . . . 
+    f b b b b b b b b b b f c c . . 
+    f b c b b b c b b b b f . . . . 
+    . f 1 f f f 1 b b b c f . . . . 
+    . . f b b b b b b c f . . . . . 
+    . . . f f f f f f f . . . . . . 
+    `, assets.image`tank 6`]
 scene.cameraFollowSprite(mySprite)
 game.onUpdate(function () {
     if (controller.right.isPressed()) {
@@ -318,5 +299,8 @@ game.onUpdate(function () {
     }
 })
 game.onUpdateInterval(5000, function () {
-    spawnenemy()
+    pointsystem(1)
+})
+game.onUpdateInterval(2000, function () {
+    spawnenemy(2)
 })
